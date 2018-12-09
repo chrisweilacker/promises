@@ -4,17 +4,31 @@
  *     (the username will be the first line of the file)
  * (2) then, sends a request to the GitHub API for the user's profile
  * (3) then, writes the JSON response of the API to `writeFilePath`
- *
+ 
  * HINT: We exported some similar promise-returning functions in previous exercises
  */
 
 var fs = require('fs');
 var Promise = require('bluebird');
-
-
+var getGitHub = require('./promisification.js').getGitHubProfileAsync;
+var getFirstLine = require('./promiseConstructor.js').pluckFirstLineFromFileAsync;
 
 var fetchProfileAndWriteToFile = function(readFilePath, writeFilePath) {
   // TODO
+  return getFirstLine(readFilePath)
+    .then((username) => {
+      return getGitHub(username);
+    })
+    .then((profile, reject) => {
+      fs.writeFileSync(writeFilePath, JSON.stringify(profile), (err)=> {
+        if (err) { 
+          reject(err);
+        }
+      });
+    })
+    .catch((err)=> {
+      console.log(err);
+    });
 };
 
 // Export these functions so we can test them
